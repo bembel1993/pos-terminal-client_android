@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Поле для номера кредитной карты -->
     <EditText
         android:id="@+id/etCardNumber"
         android:layout_width="match_parent"
@@ -15,7 +14,6 @@
         android:maxLength="19"
         android:text="4242424242424242"/>
 
-    <!-- Поле для суммы -->
     <EditText
         android:id="@+id/etAmount"
         android:layout_width="match_parent"
@@ -24,7 +22,6 @@
         android:inputType="number"
         android:text="33450" />
 
-    <!-- Поле для ID магазина -->
     <EditText
         android:id="@+id/etMerchantId"
         android:layout_width="match_parent"
@@ -33,7 +30,6 @@
         android:inputType="number"
         android:text="9876" />
 
-    <!-- Кнопка для отправки -->
     <Button
         android:id="@+id/btnSend"
         android:layout_width="match_parent"
@@ -41,7 +37,6 @@
         android:text="Отправить транзакцию"
         android:onClick="onClick"/>
 
-    <!-- Текстовое поле для отображения транзакции -->
     <TextView
         android:id="@+id/tvTransaction"
         android:layout_width="match_parent"

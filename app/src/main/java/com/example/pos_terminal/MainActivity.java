@@ -70,13 +70,11 @@ public class MainActivity extends AppCompatActivity {
                     merchantId = 0;
                 }
 
-                // Запускаем обработку транзакции
                 startTransactionProcess(cardNumber, amountCents, merchantId);
 
                 byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
                 Log.d("TransactionBytes", bytesToHex(transactionBytes));
 
-                // Вызов метода для создания транзакции
                 Log.d("Transaction", "Длина байт транзакции: " + transactionBytes.length);
 
                 Intent intent = new Intent(this, SuccessActivity.class);
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://IPv4/api/transaction"); // замените на ваш URL
+                    URL url = new URL("http://IPv4:PORT/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -142,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
 
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Ошибка: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    System.out.println("Ошибка: " + e.getMessage());
                 }
             }
         }).start();
