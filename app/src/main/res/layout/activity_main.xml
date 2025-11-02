@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Поле для номера кредитной карты -->
+    <EditText
+        android:id="@+id/etCardNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Номер карты"
+        android:inputType="text"
+        android:maxLength="19"
+        android:text="4242424242424242"/>
+
+    <!-- Поле для суммы -->
+    <EditText
+        android:id="@+id/etAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Сумма (в копейках)"
+        android:inputType="number"
+        android:text="33450" />
+
+    <!-- Поле для ID магазина -->
+    <EditText
+        android:id="@+id/etMerchantId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID магазина"
+        android:inputType="number"
+        android:text="9876" />
+
+    <!-- Кнопка для отправки -->
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Отправить транзакцию"
+        android:onClick="onClick"/>
+
+    <!-- Текстовое поле для отображения транзакции -->
+    <TextView
+        android:id="@+id/tvTransaction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Here will transaction"
+        android:paddingTop="20dp"
+        android:textSize="14sp"/>
+
+</LinearLayout>
