@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://10.192.112.148:12345/api/transaction"); // замените на ваш URL
+                    URL url = new URL("http://IPv4/api/transaction"); // замените на ваш URL
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
