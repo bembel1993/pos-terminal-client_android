@@ -70,29 +70,28 @@ public class MainActivity extends AppCompatActivity {
                     merchantId = 0;
                 }
 
-                startTransactionProcess(cardNumber, amountCents, merchantId);
+//                startTransactionProcess(cardNumber, amountCents, merchantId);
 
                 byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
-                Log.d("TransactionBytes", bytesToHex(transactionBytes));
-
-                Log.d("Transaction", "Длина байт транзакции: " + transactionBytes.length);
 
                 Intent intent = new Intent(this, SuccessActivity.class);
                 intent.putExtra("etCardNumber", cardNumber);
                 intent.putExtra("etAmount", amountStr);
                 intent.putExtra("etMerchantId", String.valueOf(merchantId));
-
-                sendDataToServer(cardNumber, amountStr, merchantId);
+                intent.putExtra("transactionBytes", bytesToHex(transactionBytes));
                 startActivity(intent);
+
+                sendDataToServer(cardNumber, amountCents, merchantId);
+
 
             }
 
-    private void sendDataToServer(String cardNumber, String amountStr, int merchantId) {
+    private void sendDataToServer(String cardNumber, int amountCents, int merchantId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://IPv4:PORT/api/transaction");
+                    URL url = new URL("http://10.192.112.148:12345/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -100,10 +99,14 @@ public class MainActivity extends AppCompatActivity {
                     conn.setDoOutput(true);
                     conn.setRequestProperty("Content-Type", "application/json");
 
+                    startTransactionProcess(cardNumber, amountCents, merchantId);
+                    byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
+
                     JSONObject jsonParam = new JSONObject();
                     jsonParam.put("cardNumber", cardNumber);
-                    jsonParam.put("amount", amountStr);
+                    jsonParam.put("amount", amountCents);
                     jsonParam.put("merchantId", merchantId);
+                    jsonParam.put("transactionBytes", bytesToHex(transactionBytes));
 
                     OutputStream os = conn.getOutputStream();
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
@@ -147,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void startTransactionProcess(String cardNumber, int amount, int merchantId) {
+    private void startTransactionProcess(String cardNumber, float amount, int merchantId) {
         Log.i("MainActivity", "Запуск транзакции с:");
         Log.i("MainActivity", "Карта: " + cardNumber);
         Log.i("MainActivity", "Сумма: " + amount);
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Основной метод создания транзакции
-    public static byte[] createTransaction(String cardNumber, int amountCents, int merchantId) {
+    public static byte[] createTransaction(String cardNumber, float amountCents, int merchantId) {
         String maskedCard = maskCardNumber(cardNumber);
         String transactionId = generateTransactionId();
 
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         ByteBuffer buffer = ByteBuffer.allocate(CARD_LEN + 4 + TRAN_ID_LEN + 4);
 
         buffer.put(cardBytes);
-        buffer.putInt(amountCents);
+        buffer.putFloat(amountCents);
         buffer.put(transIdBytes);
         buffer.putInt(merchantId);
 

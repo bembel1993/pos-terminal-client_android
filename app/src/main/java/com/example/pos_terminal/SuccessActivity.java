@@ -21,8 +21,10 @@ public class SuccessActivity extends AppCompatActivity {
             String cardNumber = arguments.getString("etCardNumber");
             String amountStr = arguments.getString("etAmount");
             String merchantId = arguments.getString("etMerchantId");
+            String transactionBytes = arguments.getString("transactionBytes");
             textView.setText("Номер карты: " + cardNumber + "\nвнесенная сумма: " + amountStr +
-                    "\nID магазина: " + merchantId);
+                    "\nID магазина: " + merchantId +
+                    "\n Транзакция в виде бинарного сообщения: " + transactionBytes);
         }
 
         setContentView(textView);
