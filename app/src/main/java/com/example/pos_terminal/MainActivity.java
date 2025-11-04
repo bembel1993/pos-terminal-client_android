@@ -74,11 +74,14 @@ public class MainActivity extends AppCompatActivity {
 
                 byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
 
+                TransactionData data = decodeTransaction(transactionBytes);
+
                 Intent intent = new Intent(this, SuccessActivity.class);
-                intent.putExtra("etCardNumber", cardNumber);
-                intent.putExtra("etAmount", amountStr);
-                intent.putExtra("etMerchantId", String.valueOf(merchantId));
-                intent.putExtra("transactionBytes", bytesToHex(transactionBytes));
+//                intent.putExtra("etCardNumber", cardNumber);
+//                intent.putExtra("etAmount", amountStr);
+//                intent.putExtra("etMerchantId", String.valueOf(merchantId));
+//                intent.putExtra("transactionBytes", bytesToHex(transactionBytes));
+                intent.putExtra(TransactionData.class.getSimpleName(), data);
 
                 sendDataToServer(cardNumber, amountCents, merchantId);
                 startActivity(intent);
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://IPv4:12345/api/transaction");
+                    URL url = new URL("http://10.192.112.148:12345/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         ByteBuffer buffer = ByteBuffer.allocate(CARD_LEN + 4 + TRAN_ID_LEN + 4);
 
         buffer.put(cardBytes);
-        buffer.putFloat(amountCents);
+        buffer.putInt(amountCents);
         buffer.put(transIdBytes);
         buffer.putInt(merchantId);
 
@@ -212,5 +215,29 @@ public class MainActivity extends AppCompatActivity {
             sb.append(String.format("%02x", b));
         }
         return sb.toString();
+    }
+
+
+    public static TransactionData decodeTransaction(byte[] data) {
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+
+        byte[] cardBytes = new byte[20];
+        buffer.get(cardBytes);
+
+        String card = new String(cardBytes, StandardCharsets.UTF_8).trim();
+        int amount = buffer.getInt();
+        byte[] transIdBytes = new byte[50];
+        buffer.get(transIdBytes);
+        String transId = new String(transIdBytes, StandardCharsets.UTF_8).trim();
+        int merchantId = buffer.getInt();
+
+        System.out.println("Card PAN: " + card);
+        System.out.println("Amount: " + amount);
+        System.out.println("Transaction ID: " + transId);
+        System.out.println("Merchant ID: " + merchantId);
+
+        TransactionData trData = new TransactionData(card, amount, transId, merchantId);
+
+        return trData;
     }
 }
