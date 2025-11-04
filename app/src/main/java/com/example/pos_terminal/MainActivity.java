@@ -16,11 +16,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 //        btnSend = findViewById(R.id.btnSend);
     }
 
-            public void onClick(View v) {
+            public void onClick(View v) throws IOException {
                 String cardNumber = etCardNumber.getText().toString().trim();
                 String amountStr = etAmount.getText().toString().trim();
                 String merchantIdStr = etMerchantId.getText().toString().trim();
@@ -70,21 +72,17 @@ public class MainActivity extends AppCompatActivity {
                     merchantId = 0;
                 }
 
-//                startTransactionProcess(cardNumber, amountCents, merchantId);
 
                 byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
 
                 TransactionData data = decodeTransaction(transactionBytes);
 
                 Intent intent = new Intent(this, SuccessActivity.class);
-//                intent.putExtra("etCardNumber", cardNumber);
-//                intent.putExtra("etAmount", amountStr);
-//                intent.putExtra("etMerchantId", String.valueOf(merchantId));
-//                intent.putExtra("transactionBytes", bytesToHex(transactionBytes));
                 intent.putExtra(TransactionData.class.getSimpleName(), data);
 
                 sendDataToServer(cardNumber, amountCents, merchantId);
                 startActivity(intent);
+
             }
 
     private void sendDataToServer(String cardNumber, int amountCents, int merchantId) {
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://10.192.112.148:12345/api/transaction");
+                    URL url = new URL("http://IPv4:12345/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -103,9 +101,6 @@ public class MainActivity extends AppCompatActivity {
                     byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
 
                     JSONObject jsonParam = new JSONObject();
-                    jsonParam.put("cardNumber", cardNumber);
-                    jsonParam.put("amount", amountCents);
-                    jsonParam.put("merchantId", merchantId);
                     jsonParam.put("transactionBytes", bytesToHex(transactionBytes));
 
                     OutputStream os = conn.getOutputStream();
@@ -149,12 +144,13 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    public void getDataFromServer() throws IOException {
+        URL url = new URL("http://10.192.112.148:12345/api/endpoint");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(15000);
 
-    private void startTransactionProcess(String cardNumber, float amount, int merchantId) {
-        Log.i("MainActivity", "Запуск транзакции с:");
-        Log.i("MainActivity", "Карта: " + cardNumber);
-        Log.i("MainActivity", "Сумма: " + amount);
-        Log.i("MainActivity", "Магазин ID: " + merchantId);
     }
 
 
