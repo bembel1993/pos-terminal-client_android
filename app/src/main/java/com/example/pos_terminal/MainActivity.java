@@ -79,11 +79,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("etAmount", amountStr);
                 intent.putExtra("etMerchantId", String.valueOf(merchantId));
                 intent.putExtra("transactionBytes", bytesToHex(transactionBytes));
-                startActivity(intent);
 
                 sendDataToServer(cardNumber, amountCents, merchantId);
-
-
+                startActivity(intent);
             }
 
     private void sendDataToServer(String cardNumber, int amountCents, int merchantId) {
@@ -91,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://10.192.112.148:12345/api/transaction");
+                    URL url = new URL("http://IPv4:12345/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -99,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
                     conn.setDoOutput(true);
                     conn.setRequestProperty("Content-Type", "application/json");
 
-                    startTransactionProcess(cardNumber, amountCents, merchantId);
                     byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
 
                     JSONObject jsonParam = new JSONObject();
@@ -189,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Основной метод создания транзакции
-    public static byte[] createTransaction(String cardNumber, float amountCents, int merchantId) {
+    public static byte[] createTransaction(String cardNumber, int amountCents, int merchantId) {
         String maskedCard = maskCardNumber(cardNumber);
         String transactionId = generateTransactionId();
 
