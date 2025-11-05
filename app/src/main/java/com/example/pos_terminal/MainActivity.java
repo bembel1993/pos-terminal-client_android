@@ -1,7 +1,5 @@
 package com.example.pos_terminal;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,15 +21,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     String msg = "Android : ";
     private EditText etCardNumber, etAmount, etMerchantId;
+    private List<String> transactionDataList = new ArrayList<String>();
     private Button btnSend;
 
     @Override
@@ -70,10 +70,6 @@ public class MainActivity extends AppCompatActivity {
         TransactionData data = decodeTransaction(transactionBytes);
 
         sendDataToServer(cardNumber, amountCents, merchantId);
-
-        Intent intent = new Intent(this, SuccessActivity.class);
-        intent.putExtra(TransactionData.class.getSimpleName(), data);
-        startActivity(intent);
     }
 
     private void sendDataToServer(String cardNumber, int amountCents, int merchantId) {
@@ -81,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://IPv4/api/transaction");
+                    URL url = new URL("http://ipv4:12345/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -120,19 +116,29 @@ public class MainActivity extends AppCompatActivity {
                             String cardNumber = jsonObject.getString("numberСard");
                             String status = jsonObject.getString("status");
 
+                            TransactionData trData = new TransactionData(cardNumber, amount, status, merchantId);
+                            transactionDataList.add(cardNumber);
+                            transactionDataList.add(status);
+
                             Log.d("ParsedJSON", "Amount: " + amount);
                             Log.d("ParsedJSON", "Merchant ID: " + merchantId);
                             Log.d("ParsedJSON", "Card Number: " + cardNumber);
                             Log.d("ParsedJSON", "Status: " + status);
+
+                            Log.d("ServerResponse", response.toString());
+
+                            System.out.println("Array: " + transactionDataList);
+
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Данные успешно отправлены!", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
+                                intent.putExtra(TransactionData.class.getSimpleName(), trData);
+                                startActivity(intent);
+                            });
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.e("JSONError", "Ошибка парсинга JSON: " + e.getMessage());
                         }
-
-                        Log.d("ServerResponse", response.toString());
-
-                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Данные успешно отправлены!", Toast.LENGTH_SHORT).show());
-
                     } else {
                         Log.e("ServerError", "Response code: " + responseCode);
 
