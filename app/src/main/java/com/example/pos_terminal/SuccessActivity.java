@@ -30,7 +30,7 @@ public class SuccessActivity extends AppCompatActivity {
             datatr = (TransactionData) arguments.getSerializable(TransactionData.class.getSimpleName());
 
             textView.setText("Номер карты: " + datatr.getCardNumber() + "\nвнесенная сумма: " + datatr.getAmount() +
-                    "\nUUID: " + datatr.getTransId() + "\nID магазина: " + datatr.getMerchantId());
+                    "\nID магазина: " + datatr.getMerchantId());
         }
         setContentView(textView);
     }

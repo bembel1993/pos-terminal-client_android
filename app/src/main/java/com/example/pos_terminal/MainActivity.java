@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -45,52 +46,42 @@ public class MainActivity extends AppCompatActivity {
 //        btnSend = findViewById(R.id.btnSend);
     }
 
-            public void onClick(View v) throws IOException {
-                String cardNumber = etCardNumber.getText().toString().trim();
-                String amountStr = etAmount.getText().toString().trim();
-                String merchantIdStr = etMerchantId.getText().toString().trim();
+    public void onClick(View v) throws IOException {
+        String cardNumber = etCardNumber.getText().toString().trim();
+        String amountStr = etAmount.getText().toString().trim();
+        String merchantIdStr = etMerchantId.getText().toString().trim();
 
-                if (cardNumber.isEmpty() || amountStr.isEmpty() || merchantIdStr.isEmpty()) {
-                    Log.e("MainActivity", "Пожалуйста, заполните все поля");
-                    return;
-                }
+        int amountCents = 0;
+        int merchantId = 0;
 
-                int amountCents = 0;
-                int merchantId = 0;
+        try {
+            amountCents = Integer.parseInt(amountStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Некорректное значение суммы");
+        }
 
-                try {
-                    amountCents = Integer.parseInt(amountStr);
-                } catch (NumberFormatException e) {
-                    System.out.println("Некорректное значение суммы");
-                    amountCents = 0;
-                }
+        try {
+            merchantId = Integer.parseInt(merchantIdStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Некорректный ID магазина");
+        }
 
-                try {
-                    merchantId = Integer.parseInt(merchantIdStr);
-                } catch (NumberFormatException e) {
-                    System.out.println("Некорректный ID магазина");
-                    merchantId = 0;
-                }
+        byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
+        TransactionData data = decodeTransaction(transactionBytes);
 
+        sendDataToServer(cardNumber, amountCents, merchantId);
 
-                byte[] transactionBytes = createTransaction(cardNumber, amountCents, merchantId);
-
-                TransactionData data = decodeTransaction(transactionBytes);
-
-                Intent intent = new Intent(this, SuccessActivity.class);
-                intent.putExtra(TransactionData.class.getSimpleName(), data);
-
-                sendDataToServer(cardNumber, amountCents, merchantId);
-                startActivity(intent);
-
-            }
+        Intent intent = new Intent(this, SuccessActivity.class);
+        intent.putExtra(TransactionData.class.getSimpleName(), data);
+        startActivity(intent);
+    }
 
     private void sendDataToServer(String cardNumber, int amountCents, int merchantId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    URL url = new URL("http://IPv4:12345/api/transaction");
+                    URL url = new URL("http://IPv4/api/transaction");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
@@ -121,6 +112,22 @@ public class MainActivity extends AppCompatActivity {
                             response.append(line);
                         }
                         reader.close();
+                        String jsonResponse = response.toString();
+                        try {
+                            JSONObject jsonObject = new JSONObject(jsonResponse);
+                            int amount = jsonObject.getInt("amount");
+                            int merchantId = jsonObject.getInt("merchtId");
+                            String cardNumber = jsonObject.getString("numberСard");
+                            String status = jsonObject.getString("status");
+
+                            Log.d("ParsedJSON", "Amount: " + amount);
+                            Log.d("ParsedJSON", "Merchant ID: " + merchantId);
+                            Log.d("ParsedJSON", "Card Number: " + cardNumber);
+                            Log.d("ParsedJSON", "Status: " + status);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e("JSONError", "Ошибка парсинга JSON: " + e.getMessage());
+                        }
 
                         Log.d("ServerResponse", response.toString());
 
