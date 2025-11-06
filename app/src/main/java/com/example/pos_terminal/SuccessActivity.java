@@ -1,6 +1,9 @@
 package com.example.pos_terminal;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +36,12 @@ public class SuccessActivity extends AppCompatActivity {
                     "\nID магазина: " + datatr.getMerchantId());
         }
         setContentView(textView);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(SuccessActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }, 5000);
     }
 
 }
